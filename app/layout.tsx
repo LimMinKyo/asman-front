@@ -1,4 +1,4 @@
-import localFont from '@next/font/local';
+import localFont from 'next/font/local';
 import GoogleAnalytics from 'components/GoogleAnalytics';
 import GoogleTagManager from 'components/GoogleTagManager';
 import 'styles/globals.css';

@@ -134,13 +134,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/font@npm:^13.4.3":
-  version: 13.4.3
-  resolution: "@next/font@npm:13.4.3"
-  checksum: 9feca5b6181505b85d9c198535ddd1dd26bc0e435dbfb53af06c14debe8eb021c78842100ef7f37e21d75701156ee4ae060db1de3d4bcb6ce6e82eb54b441634
-  languageName: node
-  linkType: hard
-
 "@next/swc-darwin-arm64@npm:13.4.2":
   version: 13.4.2
   resolution: "@next/swc-darwin-arm64@npm:13.4.2"
@@ -988,7 +981,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "assman-front@workspace:."
   dependencies:
-    "@next/font": ^13.4.3
     "@types/node": 18.11.10
     "@types/react": 18.0.26
     "@types/react-dom": 18.0.9
