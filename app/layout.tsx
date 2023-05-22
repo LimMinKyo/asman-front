@@ -1,4 +1,6 @@
 import localFont from '@next/font/local';
+import GoogleAnalytics from 'components/GoogleAnalytics';
+import GoogleTagManager from 'components/GoogleTagManager';
 import 'styles/globals.css';
 
 const pretendard = localFont({
@@ -31,8 +33,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className={pretendard.className}>
-      <body>{children}</body>
-    </html>
+    <>
+      <html lang="ko" className={pretendard.className}>
+        <body>{children}</body>
+      </html>
+      <GoogleAnalytics />
+      <GoogleTagManager />
+    </>
   );
 }
