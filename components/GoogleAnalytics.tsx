@@ -1,29 +1,23 @@
-import { useRouter } from 'next/router';
+'use client';
+
+import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect } from 'react';
 import * as gtag from 'utils/gtag';
 
 export default function GoogleAnalytics() {
-  const router = useRouter();
+  const pathname = usePathname();
 
   /**
    * GA 페이지 조회 수 측정
    */
   useEffect(() => {
-    if (!gtag.GA_TRACKING_ID) {
+    if (!window.gtag || !pathname) {
       return;
     }
 
-    const handleRouteChange = (url: string) => {
-      gtag.pageview(url);
-    };
-
-    router.events.on('routeChangeComplete', handleRouteChange);
-
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
-    };
-  }, [router.events]);
+    gtag.pageview(pathname);
+  }, [pathname]);
 
   return gtag.GA_TRACKING_ID ? (
     <>

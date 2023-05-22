@@ -13,8 +13,15 @@ export const pageview = (url: string) => {
   });
 };
 
+interface IGTagEvent {
+  action: string;
+  category: string;
+  label: string;
+  value: number;
+}
+
 // https://developers.google.com/analytics/devguides/collection/gtagjs/events
-export const event = ({ action, category, label, value }: any) => {
+export const event = ({ action, category, label, value }: IGTagEvent) => {
   window.gtag('event', action, {
     event_category: category,
     event_label: label,
