@@ -35,6 +35,9 @@ export default function RootLayout({
   return (
     <>
       <html lang="ko" className={pretendard.className}>
+        <head>
+          <script src="/__ENV.js" defer />
+        </head>
         <body>{children}</body>
       </html>
       <GoogleAnalytics />
