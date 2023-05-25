@@ -1,12 +1,31 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { withSentryConfig } = require('@sentry/nextjs');
+const webpack = require('webpack');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  // generateEtags: false,
+  // generateBuildId: () => new Date().getTime().toString(),
   sentry: {
     hideSourceMaps: true,
+  },
+  compress: true,
+  webpack(config) {
+    const prod = process.env.NODE_ENV === 'production';
+
+    const plugins = [
+      ...config.plugins,
+      new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /^\.\/ko$/),
+    ];
+
+    return {
+      ...config,
+      mode: prod ? 'production' : 'development',
+      devtool: prod ? 'hidden-source-map' : 'eval-source-map',
+      plugins,
+    };
   },
 };
 
@@ -23,4 +42,10 @@ const sentryWebpackPluginOptions = {
   // https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+module.exports = withBundleAnalyzer(
+  withSentryConfig(nextConfig, sentryWebpackPluginOptions),
+);
