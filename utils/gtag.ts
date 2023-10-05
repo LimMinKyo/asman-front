@@ -1,4 +1,4 @@
-import getRuntimeEnv from './env';
+import { envKeys, getRuntimeEnv } from './env';
 
 declare global {
   interface Window {
@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-export const GA_TRACKING_ID = getRuntimeEnv('NEXT_PUBLIC_GA_ID');
+export const GA_TRACKING_ID = getRuntimeEnv(envKeys.GA_ID);
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageview = (url: string) => {

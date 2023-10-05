@@ -1,8 +1,8 @@
 import * as Sentry from '@sentry/nextjs';
 import { Replay } from '@sentry/nextjs';
-import getRuntimeEnv from 'utils/env';
+import { envKeys, getRuntimeEnv } from 'utils/env';
 
-const SENTRY_DSN = getRuntimeEnv('SENTRY_DSN');
+const SENTRY_DSN = getRuntimeEnv(envKeys.SENTRY_DSN);
 
 Sentry.init({
   dsn: SENTRY_DSN,
