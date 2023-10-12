@@ -2,6 +2,7 @@ import localFont from 'next/font/local';
 import GoogleAnalytics from 'components/GoogleAnalytics';
 import GoogleTagManager from 'components/GoogleTagManager';
 import 'styles/globals.css';
+import ReactQueryClientProvider from './ReactQueryClientProvider';
 
 const pretendard = localFont({
   src: '../public/fonts/PretendardVariable.woff2',
@@ -38,7 +39,9 @@ export default function RootLayout({
         <head>
           <script src="/__ENV.js" defer />
         </head>
-        <body>{children}</body>
+        <body>
+          <ReactQueryClientProvider>{children}</ReactQueryClientProvider>
+        </body>
       </html>
       <GoogleAnalytics />
       <GoogleTagManager />
