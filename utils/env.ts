@@ -24,8 +24,8 @@ type EnvName = keyof typeof envKeys;
 
 export function getRuntimeEnv(envName: EnvName) {
   if (isClientBrowser()) {
-    return window.__ENV[envName];
+    return window.__ENV[envName] || '';
   } else {
-    return process.env[envName];
+    return process.env[envName] || '';
   }
 }
