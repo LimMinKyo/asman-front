@@ -8,7 +8,7 @@ Sentry.init({
   dsn: SENTRY_DSN,
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
-  enabled: process.env.NODE_ENV !== 'development',
+  enabled: getRuntimeEnv(envKeys.SENTRY_ENABLED) === 'true',
 
   // Replay may only be enabled for the client-side
   integrations: [new Replay()],
