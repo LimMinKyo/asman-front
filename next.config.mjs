@@ -4,6 +4,7 @@ import getWithBundleAnalyzer from '@next/bundle-analyzer';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['react-daisyui'],
   reactStrictMode: true,
   swcMinify: true,
   // generateEtags: false,
