@@ -16,10 +16,10 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="flex flex-col justify-center gap-8 mt-4 px-4">
-      <Button>
-        <Link href="/dividends">배당일지</Link>
-      </Button>
+    <div className="flex flex-col justify-center gap-8 mt-4">
+      <Link href="/dividends">
+        <Button className="w-full">배당일지</Button>
+      </Link>
     </div>
   );
 }
