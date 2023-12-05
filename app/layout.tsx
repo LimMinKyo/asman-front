@@ -58,7 +58,7 @@ export default function RootLayout({
             }}
           />
         </head>
-        <body className="max-w-xl mx-auto">
+        <body className="max-w-xl mx-auto px-5">
           <ReactQueryClientProvider>{children}</ReactQueryClientProvider>
         </body>
       </html>

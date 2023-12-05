@@ -53,14 +53,14 @@ export default function Header() {
     //     </Menu>
     //   }
     // >
-    <Navbar className="w-full h-16 justify-between py-10">
-      <div className="px-2 mx-2">
+    <Navbar className="w-full h-16 justify-between py-10 px-0">
+      <div>
         <Link href="/main" className="hover:no-underline">
           <Logo />
         </Link>
       </div>
       {/* <Menu horizontal className="flex-none hidden lg:block"> */}
-      <Menu horizontal>
+      <Menu horizontal className="p-0">
         {!isLoading ? (
           !isLoggedIn ? (
             <Menu.Item>
