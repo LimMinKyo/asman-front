@@ -18,6 +18,7 @@ export const envKeys = {
   SENTRY_PROJECT: 'SENTRY_PROJECT',
   SENTRY_AUTH_TOKEN: 'SENTRY_AUTH_TOKEN',
   SENTRY_ENABLED: 'SENTRY_ENABLED',
+  KAKAO_API_KEY: 'KAKAO_API_KEY',
 } as const;
 
 type EnvName = keyof typeof envKeys;
