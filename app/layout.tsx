@@ -7,6 +7,8 @@ import 'styles/globals.css';
 import ReactQueryClientProvider from './ReactQueryClientProvider';
 import Script from 'next/script';
 import { envKeys, getRuntimeEnv } from 'utils/env';
+import GlobalModal from 'components/ui/organisms/modals/GlobalModal';
+import { RecoilRoot } from 'recoil';
 
 const pretendard = localFont({
   src: '../public/fonts/PretendardVariable.woff2',
@@ -59,7 +61,12 @@ export default function RootLayout({
           />
         </head>
         <body className="max-w-xl mx-auto px-5">
-          <ReactQueryClientProvider>{children}</ReactQueryClientProvider>
+          <ReactQueryClientProvider>
+            <RecoilRoot>
+              {children}
+              <GlobalModal />
+            </RecoilRoot>
+          </ReactQueryClientProvider>
         </body>
       </html>
       <GoogleAnalytics />
