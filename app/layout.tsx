@@ -9,6 +9,7 @@ import Script from 'next/script';
 import { envKeys, getRuntimeEnv } from 'utils/env';
 import GlobalModal from 'components/ui/organisms/modals/GlobalModal';
 import { RecoilRoot } from 'recoil';
+import { Toaster } from 'react-hot-toast';
 
 const pretendard = localFont({
   src: '../public/fonts/PretendardVariable.woff2',
@@ -65,6 +66,7 @@ export default function RootLayout({
             <RecoilRoot>
               {children}
               <GlobalModal />
+              <Toaster />
             </RecoilRoot>
           </ReactQueryClientProvider>
         </body>
