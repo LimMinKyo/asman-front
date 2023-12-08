@@ -15,6 +15,7 @@ import { queryKeys } from 'constants/query-keys.constant';
 import { GetDividendsResponse } from 'api/dividends/dtos/get-dividends.dto';
 import { toast } from 'react-hot-toast';
 import useYearMonthPicker from 'hooks/useYearMonthPicker';
+import YearMonthPicker from 'components/ui/atoms/YearMonthPicker/YearMonthPicker';
 
 interface IForm {
   id?: number;
@@ -219,17 +220,19 @@ export default function DividendsPage() {
       <div className="mt-10">
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <div className="font-bold text-xl flex items-center gap-4">
-              <button onClick={onClickPrev}>&larr;</button>
-              <div className="flex gap-2">
-                <div>{year}년</div>
-                <div>{month}월</div>
-              </div>
-              <button onClick={onClickNext}>&rarr;</button>
-            </div>
+            <YearMonthPicker
+              year={year}
+              month={month}
+              onClickPrev={onClickPrev}
+              onClickNext={onClickNext}
+            />
             <Button onClick={() => setIsOpen(true)}>추가</Button>
           </div>
-          {!isLoading && data?.data?.length ? (
+          {isLoading ? (
+            <div className="font-semibold text-center text-gray-500 text-lg mt-52">
+              불러오는 중...
+            </div>
+          ) : data?.data?.length ? (
             <ul>
               {data?.data.map((dividend) => (
                 <li key={dividend.id} className="py-2">
