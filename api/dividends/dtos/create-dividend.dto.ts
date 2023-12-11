@@ -1,6 +1,5 @@
 import { ResponseDto } from 'api/common/response.dto';
 import { Unit } from 'api/common/unit.dto';
-import { Dividend } from '../entities/dividend.entity';
 
 export interface CreateDividendRequest {
   dividendAt: string;
@@ -10,4 +9,4 @@ export interface CreateDividendRequest {
   tax?: number;
 }
 
-export interface CreateDividendResponse extends ResponseDto<Dividend> {}
+export interface CreateDividendResponse extends ResponseDto {}

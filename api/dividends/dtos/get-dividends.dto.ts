@@ -1,8 +1,11 @@
-import { ResponseDto } from 'api/common/response.dto';
+import {
+  PaginationRequest,
+  PaginationResponse,
+} from 'api/common/pagination.dto';
 import { Dividend } from '../entities/dividend.entity';
 
-export interface GetDividendsRequest {
+export interface GetDividendsRequest extends PaginationRequest {
   date: string;
 }
 
-export interface GetDividendsResponse extends ResponseDto<Dividend[]> {}
+export interface GetDividendsResponse extends PaginationResponse<Dividend> {}

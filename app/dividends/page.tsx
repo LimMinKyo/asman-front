@@ -8,7 +8,6 @@ import { useState } from 'react';
 import { Button, Input, Select } from 'react-daisyui';
 import { useForm } from 'react-hook-form';
 import Datepicker, { DateRangeType } from 'react-tailwindcss-datepicker';
-import { FaRegTrashCan } from 'react-icons/fa6';
 import useModal from 'hooks/useModal';
 import ModalLayout from 'components/ui/templates/ModalLayout';
 import { queryKeys } from 'constants/query-keys.constant';
@@ -16,6 +15,8 @@ import { GetDividendsResponse } from 'api/dividends/dtos/get-dividends.dto';
 import { toast } from 'react-hot-toast';
 import useYearMonthPicker from 'hooks/useYearMonthPicker';
 import YearMonthPicker from 'components/ui/atoms/YearMonthPicker/YearMonthPicker';
+import Pagination from 'components/ui/atoms/Pagination/Pagination';
+import { FaRegTrashCan } from 'react-icons/fa6';
 
 interface IForm {
   id?: number;
@@ -30,9 +31,10 @@ export default function DividendsPage() {
   const queryClient = useQueryClient();
   const { year, month, yearMonth, onClickNext, onClickPrev } =
     useYearMonthPicker();
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery(
-    queryKeys.dividends({ date: yearMonth }),
-    () => dividendsAPI.getDividends({ date: yearMonth }),
+    queryKeys.dividends({ date: yearMonth, page }),
+    () => dividendsAPI.getDividends({ date: yearMonth, page }),
   );
 
   const { register, getValues, watch, setValue, reset } = useForm<IForm>();
@@ -63,7 +65,7 @@ export default function DividendsPage() {
     }
 
     try {
-      const { data } = await dividendsAPI.createDividend({
+      await dividendsAPI.createDividend({
         name,
         dividend: Number(dividend),
         dividendAt: dayjs(dividendAt.endDate).format('YYYY-MM-DD'),
@@ -71,25 +73,8 @@ export default function DividendsPage() {
         unit,
       });
 
-      const prevDividends = queryClient.getQueryData<GetDividendsResponse>(
-        queryKeys.dividends({ date: yearMonth }),
-      );
-
-      queryClient.setQueryData<GetDividendsResponse>(
-        queryKeys.dividends({ date: yearMonth }),
-        (prev) => {
-          if (prev && prev.data && data) {
-            return {
-              ...prev,
-              data: [...prev.data, data].sort(
-                (a, b) =>
-                  new Date(a.dividendAt).getTime() -
-                  new Date(b.dividendAt).getTime(),
-              ),
-            };
-          }
-          return prevDividends;
-        },
+      queryClient.invalidateQueries(
+        queryKeys.dividends({ date: yearMonth, page }),
       );
 
       toast.success('추가 완료');
@@ -133,21 +118,8 @@ export default function DividendsPage() {
         try {
           await dividendsAPI.deleteDividend(id);
 
-          const prevDividends = queryClient.getQueryData<GetDividendsResponse>(
-            queryKeys.dividends({ date: yearMonth }),
-          );
-
-          queryClient.setQueryData<GetDividendsResponse>(
-            queryKeys.dividends({ date: yearMonth }),
-            (prev) => {
-              if (prev) {
-                return {
-                  ...prev,
-                  data: prev.data?.filter((dividend) => dividend.id !== id),
-                };
-              }
-              return prevDividends;
-            },
+          queryClient.invalidateQueries(
+            queryKeys.dividends({ date: yearMonth, page }),
           );
 
           toast.success('삭제 성공');
@@ -182,11 +154,11 @@ export default function DividendsPage() {
           await dividendsAPI.updateDividend(id, data);
 
           const prevDividends = queryClient.getQueryData<GetDividendsResponse>(
-            queryKeys.dividends({ date: yearMonth }),
+            queryKeys.dividends({ date: yearMonth, page }),
           );
 
           queryClient.setQueryData<GetDividendsResponse>(
-            queryKeys.dividends({ date: yearMonth }),
+            queryKeys.dividends({ date: yearMonth, page }),
             (prev) => {
               if (prev) {
                 return {
@@ -233,29 +205,39 @@ export default function DividendsPage() {
               불러오는 중...
             </div>
           ) : data?.data?.length ? (
-            <ul>
-              {data?.data.map((dividend) => (
-                <li key={dividend.id} className="py-2">
-                  <button
-                    className="w-full flex justify-between items-center border p-3 rounded-lg"
-                    onClick={() => openUpdateModal(dividend.id)}
-                  >
-                    <div className="flex-1 text-left text-sm">
-                      배당일: {dayjs(dividend.dividendAt).format('YYYY-MM-DD')}
-                    </div>
-                    <div className="flex-1 font-semibold">{dividend.name}</div>
-                    <div className="flex-1 text-right">
-                      {`${(
-                        dividend.dividend - (dividend.tax || 0)
-                      ).toLocaleString()}`}
-                      <span className="text-xs ml-1 font-semibold">
-                        {dividend.unit}
-                      </span>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="min-h-[700px]">
+                {data?.data.map((dividend) => (
+                  <li key={dividend.id} className="py-2">
+                    <button
+                      className="w-full flex justify-between items-center border p-3 rounded-lg"
+                      onClick={() => openUpdateModal(dividend.id)}
+                    >
+                      <div className="flex-1 text-left text-sm">
+                        배당일:{' '}
+                        {dayjs(dividend.dividendAt).format('YYYY-MM-DD')}
+                      </div>
+                      <div className="flex-1 font-semibold">
+                        {dividend.name}
+                      </div>
+                      <div className="flex-1 text-right">
+                        {`${(
+                          dividend.dividend - (dividend.tax || 0)
+                        ).toLocaleString()}`}
+                        <span className="text-xs ml-1 font-semibold">
+                          {dividend.unit}
+                        </span>
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <Pagination
+                page={page}
+                onPageChange={(page) => setPage(page)}
+                pageCount={data.meta.pageCount}
+              />
+            </>
           ) : (
             <div className="font-semibold text-center text-gray-500 text-lg mt-52">
               검색된 결과가 없습니다.
