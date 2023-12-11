@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from 'react-daisyui';
-import { envKeys, getRuntimeEnv } from 'utils/env';
 
 export default function Login() {
   return (
@@ -13,9 +12,7 @@ export default function Login() {
             const { Kakao } = window;
 
             await Kakao.Auth.authorize({
-              redirectUri: `${getRuntimeEnv(
-                envKeys.API_URL,
-              )}/api/auth/login/kakao`,
+              redirectUri: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/kakao`,
             });
           }}
           className="bg-yellow-400 text-lg px-8 py-2 flex items-center h-fit"

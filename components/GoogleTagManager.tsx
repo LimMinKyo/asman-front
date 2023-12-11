@@ -1,7 +1,6 @@
 import Script from 'next/script';
-import { envKeys, getRuntimeEnv } from 'utils/env';
 
-const GTM_ID = getRuntimeEnv(envKeys.GTM_ID);
+const GTM_ID = process.env.GTM_ID;
 
 export default function GoogleTagManager() {
   return GTM_ID ? (

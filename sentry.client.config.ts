@@ -1,14 +1,13 @@
 import * as Sentry from '@sentry/nextjs';
 import { Replay } from '@sentry/nextjs';
-import { envKeys, getRuntimeEnv } from 'utils/env';
 
-const SENTRY_DSN = getRuntimeEnv(envKeys.SENTRY_DSN);
+const SENTRY_DSN = process.env.SENTRY_DSN;
 
 Sentry.init({
   dsn: SENTRY_DSN,
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
-  enabled: getRuntimeEnv(envKeys.SENTRY_ENABLED) === 'true',
+  enabled: process.env.SENTRY_ENABLED === 'true',
 
   // Replay may only be enabled for the client-side
   integrations: [new Replay()],

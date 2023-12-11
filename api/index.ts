@@ -1,8 +1,7 @@
 import { ofetch } from 'ofetch';
-import { envKeys, getRuntimeEnv } from 'utils/env';
 import { isClientBrowser } from 'utils/validate';
 
-const API_URL = getRuntimeEnv(envKeys.API_URL);
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const getAuthorizationHeaders = () => {
   if (isClientBrowser() && localStorage.getItem('access-token')) {

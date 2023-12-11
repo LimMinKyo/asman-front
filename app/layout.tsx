@@ -6,7 +6,6 @@ import GoogleTagManager from 'components/GoogleTagManager';
 import 'styles/globals.css';
 import ReactQueryClientProvider from './ReactQueryClientProvider';
 import Script from 'next/script';
-import { envKeys, getRuntimeEnv } from 'utils/env';
 import GlobalModal from 'components/ui/organisms/modals/GlobalModal';
 import { RecoilRoot } from 'recoil';
 import { Toaster } from 'react-hot-toast';
@@ -50,13 +49,13 @@ export default function RootLayout({
     <>
       <html lang="ko" className={pretendard.className}>
         <head>
-          <script src="/__ENV.js" defer />
+          {/* <script src="/__ENV.js" defer /> */}
           <Script
             src="https://developers.kakao.com/sdk/js/kakao.js"
             onLoad={() => {
               const { Kakao } = window;
               if (!Kakao.isInitialized()) {
-                Kakao.init(getRuntimeEnv(envKeys.KAKAO_API_KEY));
+                Kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
               }
             }}
           />
