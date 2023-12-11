@@ -9,7 +9,13 @@ const { hideBin } = require('yargs/helpers');
  */
 async function parseDotenv(appEnv) {
   const { findUp } = await import('find-up');
-  const envFilePath = await findUp(`.env.${appEnv}`);
+
+  let envFilePath;
+  if (appEnv === 'prod') {
+    envFilePath = await findUp('.env');
+  } else {
+    envFilePath = await findUp(`.env.${appEnv}`);
+  }
 
   const parsedEnv = dotenv.config({ path: envFilePath }).parsed || {};
 
@@ -30,7 +36,14 @@ function writeEnv(parsedEnv) {
  */
 async function copyEnv(appEnv) {
   const { findUp } = await import('find-up');
-  const envFilePath = await findUp(`.env.${appEnv}`);
+
+  let envFilePath;
+  if (appEnv === 'prod') {
+    envFilePath = await findUp('.env');
+  } else {
+    envFilePath = await findUp(`.env.${appEnv}`);
+  }
+
   const dotenvFilePath = `${realpathSync(process.cwd())}/.env`;
 
   copyFileSync(envFilePath, dotenvFilePath);
