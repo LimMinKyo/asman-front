@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "node ./cli.js next-env --env=${APP_ENV:-dev} && next build",
     "dev": "node ./cli.js next-env --env=${APP_ENV:-dev} && next dev",
     "start": "node ./cli.js next-env -e ${APP_ENV:-prod} && next start",
     "lint": "next lint",
