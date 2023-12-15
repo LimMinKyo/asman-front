@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import { Button, Link, Menu, Modal, Navbar } from 'react-daisyui';
 import Logo from '../atoms/Logo/Logo';
 
-export default function Header() {
+interface Props {
+  hideMenu?: boolean;
+}
+
+export default function Header({ hideMenu }: Props) {
   // const [isOpen, setIsOpen] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +65,7 @@ export default function Header() {
       </div>
       {/* <Menu horizontal className="flex-none hidden lg:block"> */}
       <Menu horizontal className="p-0">
-        {!isLoading ? (
+        {!hideMenu && !isLoading ? (
           !isLoggedIn ? (
             <Menu.Item>
               <Link href="/login" className="p-0">

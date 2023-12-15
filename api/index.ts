@@ -21,7 +21,7 @@ export const httpRequest = ofetch.create({
   onResponse({ response }) {
     if (response.status === 401) {
       localStorage.removeItem('access-token');
-      location.href = '/main';
+      location.href = '/login';
     }
   },
 });
