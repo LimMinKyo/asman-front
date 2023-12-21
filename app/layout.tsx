@@ -49,6 +49,11 @@ export default function RootLayout({
     <>
       <html lang="ko" className={pretendard.className}>
         <head>
+          {/* https -> http 요청 허용 */}
+          <meta
+            http-equiv="Content-Security-Policy"
+            content="upgrade-insecure-requests"
+          />
           {/* <script src="/__ENV.js" defer /> */}
           <Script
             src="https://developers.kakao.com/sdk/js/kakao.js"
