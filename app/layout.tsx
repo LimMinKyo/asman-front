@@ -7,6 +7,7 @@ import GlobalModal from 'components/ui/organisms/modals/GlobalModal';
 import { Toaster } from 'react-hot-toast';
 import KakaoScript from 'components/KakaoScript';
 import RecoilRootProvider from 'components/RecoilRootProvider';
+import { Metadata } from 'next';
 
 const pretendard = localFont({
   src: '../public/fonts/PretendardVariable.woff2',
@@ -37,6 +38,11 @@ declare global {
     Kakao: any;
   }
 }
+
+export const metadata: Metadata = {
+  title: '부자가 되어가는 사람들의 일기, 부자일기',
+  description: '부자가 되어가는 사람들의 일기',
+};
 
 export default function RootLayout({
   children,
