@@ -1,14 +1,12 @@
-'use client';
-
 import localFont from 'next/font/local';
 import GoogleAnalytics from 'components/GoogleAnalytics';
 import GoogleTagManager from 'components/GoogleTagManager';
 import 'styles/globals.css';
-import ReactQueryClientProvider from './ReactQueryClientProvider';
-import Script from 'next/script';
+import ReactQueryClientProvider from '../components/ReactQueryClientProvider';
 import GlobalModal from 'components/ui/organisms/modals/GlobalModal';
-import { RecoilRoot } from 'recoil';
 import { Toaster } from 'react-hot-toast';
+import KakaoScript from 'components/KakaoScript';
+import RecoilRootProvider from 'components/RecoilRootProvider';
 
 const pretendard = localFont({
   src: '../public/fonts/PretendardVariable.woff2',
@@ -49,29 +47,16 @@ export default function RootLayout({
     <>
       <html lang="ko" className={pretendard.className}>
         <head>
-          {/* https -> http 요청 허용 */}
-          <meta
-            http-equiv="Content-Security-Policy"
-            content="upgrade-insecure-requests"
-          />
           {/* <script src="/__ENV.js" defer /> */}
-          <Script
-            src="https://developers.kakao.com/sdk/js/kakao.js"
-            onLoad={() => {
-              const { Kakao } = window;
-              if (!Kakao.isInitialized()) {
-                Kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
-              }
-            }}
-          />
+          <KakaoScript />
         </head>
         <body className="max-w-xl mx-auto px-5">
           <ReactQueryClientProvider>
-            <RecoilRoot>
+            <RecoilRootProvider>
               {children}
               <GlobalModal />
               <Toaster />
-            </RecoilRoot>
+            </RecoilRootProvider>
           </ReactQueryClientProvider>
         </body>
       </html>
