@@ -18,6 +18,7 @@ import YearMonthPicker from 'components/ui/atoms/YearMonthPicker/YearMonthPicker
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { Dividend } from 'api/dividends/entities/dividend.entity';
 import InfiniteScroll from 'components/common/InfiniteScroll';
+import TotalCount from 'components/ui/atoms/TotalCount/TotalCount';
 
 interface IForm {
   id?: number;
@@ -190,7 +191,7 @@ export default function DividendsPage() {
   return (
     <>
       <div className="mt-10">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
             <YearMonthPicker
               year={year}
@@ -200,6 +201,9 @@ export default function DividendsPage() {
             />
             <Button onClick={() => setIsOpen(true)}>추가</Button>
           </div>
+
+          <TotalCount totalCount={data?.pages[0].meta.totalCount} />
+
           {isLoading ? (
             <div className="font-semibold text-center text-gray-500 text-lg mt-52">
               불러오는 중...
@@ -218,7 +222,6 @@ export default function DividendsPage() {
                         onClick={() => openUpdateModal(dividend)}
                       >
                         <div className="flex-1 text-left text-sm">
-                          배당일:{' '}
                           {dayjs(dividend.dividendAt).format('YYYY-MM-DD')}
                         </div>
                         <div className="flex-1 font-semibold">
