@@ -9,5 +9,5 @@ export const queryKeys = {
   my: {
     profile: [MY, PROFILE],
   },
-  dividends: (query: GetDividendsRequest) => [DIVIDENDS, query],
+  dividends: (query: Omit<GetDividendsRequest, 'page'>) => [DIVIDENDS, query],
 };

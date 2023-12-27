@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { Unit } from 'api/common/unit.dto';
 import { dividendsAPI } from 'api/dividends';
 import dayjs from 'dayjs';
@@ -15,8 +15,9 @@ import { GetDividendsResponse } from 'api/dividends/dtos/get-dividends.dto';
 import { toast } from 'react-hot-toast';
 import useYearMonthPicker from 'hooks/useYearMonthPicker';
 import YearMonthPicker from 'components/ui/atoms/YearMonthPicker/YearMonthPicker';
-import Pagination from 'components/ui/atoms/Pagination/Pagination';
 import { FaRegTrashCan } from 'react-icons/fa6';
+import { Dividend } from 'api/dividends/entities/dividend.entity';
+import InfiniteScroll from 'components/common/InfiniteScroll';
 
 interface IForm {
   id?: number;
@@ -31,10 +32,17 @@ export default function DividendsPage() {
   const queryClient = useQueryClient();
   const { year, month, yearMonth, onClickNext, onClickPrev } =
     useYearMonthPicker();
-  const [page, setPage] = useState(1);
-  const { data, isLoading } = useQuery(
-    queryKeys.dividends({ date: yearMonth, page }),
-    () => dividendsAPI.getDividends({ date: yearMonth, page }),
+  const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery(
+    queryKeys.dividends({ date: yearMonth }),
+    ({ pageParam = 1 }) =>
+      dividendsAPI.getDividends({
+        date: yearMonth,
+        page: pageParam,
+      }),
+    {
+      getNextPageParam: (lastPage) =>
+        lastPage.meta.isLastPage ? undefined : lastPage.meta.nextPage,
+    },
   );
 
   const { register, getValues, watch, setValue, reset } = useForm<IForm>();
@@ -73,9 +81,7 @@ export default function DividendsPage() {
         unit,
       });
 
-      queryClient.invalidateQueries(
-        queryKeys.dividends({ date: yearMonth, page }),
-      );
+      queryClient.invalidateQueries(queryKeys.dividends({ date: yearMonth }));
 
       toast.success('추가 완료');
       clostModal();
@@ -84,13 +90,7 @@ export default function DividendsPage() {
     }
   };
 
-  const openUpdateModal = (id: number) => {
-    const dividend = data?.data?.find((dividend) => dividend.id === id);
-
-    if (!dividend) {
-      throw new Error('선택한 dividend가 없습니다.');
-    }
-
+  const openUpdateModal = (dividend: Dividend) => {
     setValue('id', dividend.id);
     setValue('name', dividend.name);
     setValue('dividendAt', {
@@ -119,7 +119,7 @@ export default function DividendsPage() {
           await dividendsAPI.deleteDividend(id);
 
           queryClient.invalidateQueries(
-            queryKeys.dividends({ date: yearMonth, page }),
+            queryKeys.dividends({ date: yearMonth }),
           );
 
           toast.success('삭제 성공');
@@ -154,11 +154,11 @@ export default function DividendsPage() {
           await dividendsAPI.updateDividend(id, data);
 
           const prevDividends = queryClient.getQueryData<GetDividendsResponse>(
-            queryKeys.dividends({ date: yearMonth, page }),
+            queryKeys.dividends({ date: yearMonth }),
           );
 
           queryClient.setQueryData<GetDividendsResponse>(
-            queryKeys.dividends({ date: yearMonth, page }),
+            queryKeys.dividends({ date: yearMonth }),
             (prev) => {
               if (prev) {
                 return {
@@ -204,40 +204,40 @@ export default function DividendsPage() {
             <div className="font-semibold text-center text-gray-500 text-lg mt-52">
               불러오는 중...
             </div>
-          ) : data?.data?.length ? (
-            <>
+          ) : data?.pages[0].meta.totalCount ? (
+            <InfiniteScroll
+              hasNextPage={hasNextPage}
+              fetchNextPage={fetchNextPage}
+            >
               <ul className="min-h-[700px]">
-                {data?.data.map((dividend) => (
-                  <li key={dividend.id} className="py-2">
-                    <button
-                      className="w-full flex justify-between items-center border p-3 rounded-lg"
-                      onClick={() => openUpdateModal(dividend.id)}
-                    >
-                      <div className="flex-1 text-left text-sm">
-                        배당일:{' '}
-                        {dayjs(dividend.dividendAt).format('YYYY-MM-DD')}
-                      </div>
-                      <div className="flex-1 font-semibold">
-                        {dividend.name}
-                      </div>
-                      <div className="flex-1 text-right">
-                        {`${(
-                          dividend.dividend - (dividend.tax || 0)
-                        ).toLocaleString()}`}
-                        <span className="text-xs ml-1 font-semibold">
-                          {dividend.unit}
-                        </span>
-                      </div>
-                    </button>
-                  </li>
-                ))}
+                {data?.pages.map((page) =>
+                  page.data?.map((dividend) => (
+                    <li key={dividend.id} className="py-2">
+                      <button
+                        className="w-full flex justify-between items-center border p-3 rounded-lg"
+                        onClick={() => openUpdateModal(dividend)}
+                      >
+                        <div className="flex-1 text-left text-sm">
+                          배당일:{' '}
+                          {dayjs(dividend.dividendAt).format('YYYY-MM-DD')}
+                        </div>
+                        <div className="flex-1 font-semibold">
+                          {dividend.name}
+                        </div>
+                        <div className="flex-1 text-right">
+                          {`${(
+                            dividend.dividend - (dividend.tax || 0)
+                          ).toLocaleString()}`}
+                          <span className="text-xs ml-1 font-semibold">
+                            {dividend.unit}
+                          </span>
+                        </div>
+                      </button>
+                    </li>
+                  )),
+                )}
               </ul>
-              <Pagination
-                page={page}
-                onPageChange={(page) => setPage(page)}
-                pageCount={data.meta.pageCount}
-              />
-            </>
+            </InfiniteScroll>
           ) : (
             <div className="font-semibold text-center text-gray-500 text-lg mt-52">
               검색된 결과가 없습니다.
