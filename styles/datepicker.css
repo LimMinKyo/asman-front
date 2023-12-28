@@ -1,0 +1,20 @@
+.react-datepicker__header {
+  @apply bg-white border-b-0;
+}
+
+.react-datepicker-popper[data-placement^='bottom']
+  .react-datepicker__triangle::after {
+  @apply border-b-white;
+}
+
+.react-datepicker__day--selected {
+  @apply bg-black;
+}
+
+.react-datepicker__day--keyboard-selected {
+  @apply bg-white;
+}
+
+.react-datepicker__day--selected:hover {
+  @apply bg-gray-700;
+}

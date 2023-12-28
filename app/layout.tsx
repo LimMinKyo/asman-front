@@ -2,6 +2,7 @@ import localFont from 'next/font/local';
 import GoogleAnalytics from 'components/GoogleAnalytics';
 import GoogleTagManager from 'components/GoogleTagManager';
 import 'styles/globals.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import ReactQueryClientProvider from '../components/ReactQueryClientProvider';
 import GlobalModal from 'components/ui/organisms/modals/GlobalModal';
 import { Toaster } from 'react-hot-toast';

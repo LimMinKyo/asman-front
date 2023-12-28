@@ -5,9 +5,8 @@ import { Unit } from 'api/common/unit.dto';
 import { dividendsAPI } from 'api/dividends';
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import { Button, Input, Select } from 'react-daisyui';
-import { useForm } from 'react-hook-form';
-import Datepicker, { DateRangeType } from 'react-tailwindcss-datepicker';
+import { Button, Input, Modal, Select } from 'react-daisyui';
+import { useForm, Controller } from 'react-hook-form';
 import useModal from 'hooks/useModal';
 import ModalLayout from 'components/ui/templates/ModalLayout';
 import { queryKeys } from 'constants/query-keys.constant';
@@ -19,12 +18,14 @@ import { FaRegTrashCan } from 'react-icons/fa6';
 import { Dividend } from 'api/dividends/entities/dividend.entity';
 import InfiniteScroll from 'components/common/InfiniteScroll';
 import TotalCount from 'components/ui/atoms/TotalCount/TotalCount';
+import TextAlert from 'components/ui/atoms/TextAlert/TextAlert';
+import DatePicker from 'components/ui/organisms/DatePicker';
 
 interface IForm {
   id?: number;
   name: string;
   dividend: string;
-  dividendAt: DateRangeType;
+  dividendAt: Date | null;
   tax: string;
   unit: Unit;
 }
@@ -46,7 +47,16 @@ export default function DividendsPage() {
     },
   );
 
-  const { register, getValues, watch, setValue, reset } = useForm<IForm>();
+  const {
+    register,
+    getValues,
+    watch,
+    setValue,
+    reset,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<IForm>();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const { openModal } = useModal();
@@ -55,10 +65,7 @@ export default function DividendsPage() {
     reset({
       name: '',
       dividend: '',
-      dividendAt: {
-        startDate: null,
-        endDate: null,
-      },
+      dividendAt: null,
       tax: '',
       unit: Unit.KRW,
     });
@@ -69,15 +76,11 @@ export default function DividendsPage() {
   const createDividend = async () => {
     const { dividend, name, tax, unit, dividendAt } = getValues();
 
-    if (!dividendAt?.endDate) {
-      throw new Error('배당일을 선택하지 않았습니다.');
-    }
-
     try {
       await dividendsAPI.createDividend({
         name,
         dividend: Number(dividend),
-        dividendAt: dayjs(dividendAt.endDate).format('YYYY-MM-DD'),
+        dividendAt: dayjs(dividendAt).format('YYYY-MM-DD'),
         ...(tax && { tax: Number(tax) }),
         unit,
       });
@@ -94,10 +97,7 @@ export default function DividendsPage() {
   const openUpdateModal = (dividend: Dividend) => {
     setValue('id', dividend.id);
     setValue('name', dividend.name);
-    setValue('dividendAt', {
-      startDate: dayjs(dividend.dividendAt).format('YYYY-MM-DD'),
-      endDate: dayjs(dividend.dividendAt).format('YYYY-MM-DD'),
-    });
+    setValue('dividendAt', dayjs(dividend.dividendAt).toDate());
     setValue('dividend', dividend.dividend.toString());
     setValue('tax', (dividend.tax || 0)?.toString());
     setValue('unit', dividend.unit);
@@ -148,7 +148,7 @@ export default function DividendsPage() {
           const data = {
             name,
             dividend: Number(dividend),
-            dividendAt: dayjs(dividendAt.endDate).format('YYYY-MM-DD'),
+            dividendAt: dayjs(dividendAt).format('YYYY-MM-DD'),
             ...(tax && { tax: Number(tax) }),
             unit,
           };
@@ -186,6 +186,15 @@ export default function DividendsPage() {
         }
       },
     });
+  };
+
+  const onValid = () => {
+    if (isOpenUpdateModal) {
+      updateDividend();
+      return;
+    }
+
+    createDividend();
   };
 
   return (
@@ -251,87 +260,130 @@ export default function DividendsPage() {
 
       {/* Modals */}
       {/* 배당생성 */}
-      <ModalLayout
-        title="배당"
-        isOpen={isOpen || isOpenUpdateModal}
-        actions={
-          <div className="w-full flex justify-between">
-            {isOpenUpdateModal ? (
-              <Button onClick={deleteDividend}>
-                <FaRegTrashCan />
-              </Button>
-            ) : (
-              <div></div>
-            )}
-            <div className="flex gap-2">
-              <Button onClick={clostModal}>닫기</Button>
+      <form onSubmit={handleSubmit(onValid)}>
+        <ModalLayout title="배당" isOpen={isOpen || isOpenUpdateModal}>
+          <Modal.Body className="divide-y-2">
+            <div className="flex gap-2 py-4 items-center">
+              <div className="w-16">종목</div>
+              <div className="w-full">
+                <Input
+                  {...register('name', {
+                    required: '종목을 입력해주세요.',
+                  })}
+                  size="md"
+                  className="w-full"
+                />
+                <TextAlert
+                  message={errors.name?.message}
+                  className="ms-2 mt-2"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 py-4 items-center">
+              <div className="w-16">날짜</div>
+              <div className="w-full">
+                <div className="w-full">
+                  <Controller
+                    name="dividendAt"
+                    control={control}
+                    rules={{ required: '배당일을 선택해 주세요.' }}
+                    render={({ field: { name, value, onChange, onBlur } }) => (
+                      <DatePicker
+                        name={name}
+                        selected={value}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        className="w-full"
+                        wrapperClassName="w-full"
+                        customInput={<Input size="md" className="w-full" />}
+                      />
+                    )}
+                  />
+                </div>
+                <TextAlert
+                  message={errors.dividendAt?.message}
+                  className="ms-2 mt-3"
+                />
+              </div>
+            </div>
+            <div className="py-4">
+              <div className="flex gap-2 items-center">
+                <div className="w-16">통화</div>
+                <Select {...register('unit')} size="md" className="w-full">
+                  <Select.Option value={'KRW'} selected>
+                    KRW
+                  </Select.Option>
+                  <Select.Option value={'USD'}>USD</Select.Option>
+                </Select>
+              </div>
+            </div>
+            <div className="py-4">
+              <div className="flex gap-2 items-center">
+                <div className="w-16">배당</div>
+                <div className="w-full">
+                  <Input
+                    {...register('dividend', {
+                      required: '배당을 입력해주세요.',
+                    })}
+                    type="number"
+                    size="md"
+                    className="w-full"
+                  />
+                  <TextAlert
+                    message={errors.dividend?.message}
+                    className="ms-2 mt-3"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="py-4">
+              <div className="flex gap-2 items-center">
+                <div className="w-16">세금</div>
+                <Input
+                  {...register('tax')}
+                  type="number"
+                  size="md"
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <div className="py-4">
+              <div className="flex gap-2 items-center">
+                <div className="w-16">실수령</div>
+                <Input
+                  size="md"
+                  className="w-full"
+                  value={(
+                    +watch('dividend') - (+watch('tax') || 0)
+                  ).toLocaleString()}
+                  disabled
+                />
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Actions>
+            <div className="w-full flex justify-between">
               {isOpenUpdateModal ? (
-                <Button onClick={updateDividend}>수정</Button>
+                <Button onClick={deleteDividend}>
+                  <FaRegTrashCan />
+                </Button>
               ) : (
-                <Button onClick={createDividend}>추가</Button>
+                <div></div>
               )}
+              <div className="flex gap-2">
+                <Button type="button" onClick={clostModal}>
+                  닫기
+                </Button>
+                {isOpenUpdateModal ? (
+                  <Button type="submit">수정</Button>
+                ) : (
+                  <Button type="submit">추가</Button>
+                )}
+              </div>
             </div>
-          </div>
-        }
-      >
-        <div className="divide-y-2">
-          <div className="flex gap-2 py-4 items-center">
-            <div className="w-16">종목</div>
-            <Input {...register('name')} size="md" className="w-full" />
-          </div>
-          <div className="flex gap-2 py-4 items-center">
-            <div className="w-16">날짜</div>
-            <div className="w-full">
-              <Datepicker
-                i18n={'ko'}
-                asSingle
-                useRange={false}
-                value={watch('dividendAt') || ''}
-                onChange={(newValue) => {
-                  if (newValue) {
-                    setValue('dividendAt', newValue);
-                  }
-                }}
-                inputClassName="w-full input input-md input-bordered focus:outline-offset-0"
-              />
-            </div>
-          </div>
-          <div className="py-4">
-            <div className="flex gap-2 items-center">
-              <div className="w-16">통화</div>
-              <Select {...register('unit')} size="md" className="w-full">
-                <Select.Option value={'KRW'} selected>
-                  KRW
-                </Select.Option>
-                <Select.Option value={'USD'}>USD</Select.Option>
-              </Select>
-            </div>
-          </div>
-          <div className="py-4">
-            <div className="flex gap-2 items-center">
-              <div className="w-16">배당</div>
-              <Input {...register('dividend')} size="md" className="w-full" />
-            </div>
-          </div>
-          <div className="py-4">
-            <div className="flex gap-2 items-center">
-              <div className="w-16">세금</div>
-              <Input {...register('tax')} size="md" className="w-full" />
-            </div>
-          </div>
-          <div className="py-4">
-            <div className="flex gap-2 items-center">
-              <div className="w-16">실수령</div>
-              <Input
-                size="md"
-                className="w-full"
-                value={+watch('dividend') - (+watch('tax') || 0)}
-                disabled
-              />
-            </div>
-          </div>
-        </div>
-      </ModalLayout>
+          </Modal.Actions>
+        </ModalLayout>
+      </form>
     </>
   );
 }
