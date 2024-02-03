@@ -10,7 +10,6 @@ import { useForm, Controller } from 'react-hook-form';
 import useModal from 'hooks/useModal';
 import ModalLayout from 'components/ui/templates/ModalLayout';
 import { queryKeys } from 'constants/query-keys.constant';
-import { GetDividendsResponse } from 'api/dividends/dtos/get-dividends.dto';
 import { toast } from 'react-hot-toast';
 import useYearMonthPicker from 'hooks/useYearMonthPicker';
 import YearMonthPicker from 'components/ui/atoms/YearMonthPicker/YearMonthPicker';
@@ -154,29 +153,8 @@ export default function DividendsPage() {
           };
           await dividendsAPI.updateDividend(id, data);
 
-          const prevDividends = queryClient.getQueryData<GetDividendsResponse>(
+          queryClient.invalidateQueries(
             queryKeys.dividends({ date: yearMonth }),
-          );
-
-          queryClient.setQueryData<GetDividendsResponse>(
-            queryKeys.dividends({ date: yearMonth }),
-            (prev) => {
-              if (prev) {
-                return {
-                  ...prev,
-                  data: prev.data?.map((dividend) =>
-                    dividend.id === id
-                      ? {
-                          ...dividend,
-                          ...data,
-                          dividendAt: new Date(data.dividendAt),
-                        }
-                      : dividend,
-                  ),
-                };
-              }
-              return prevDividends;
-            },
           );
 
           toast.success('수정 성공');
