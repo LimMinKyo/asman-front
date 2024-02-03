@@ -273,6 +273,7 @@ export default function DividendsPage() {
                         onBlur={onBlur}
                         className="w-full"
                         wrapperClassName="w-full"
+                        autoComplete="off"
                         customInput={<Input size="md" className="w-full" />}
                       />
                     )}
