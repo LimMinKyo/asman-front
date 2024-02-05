@@ -1,12 +1,13 @@
 'use client';
 
-import ApexCharts from 'react-apexcharts';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from 'constants/query-keys.constant';
 import { dividendsAPI } from 'api/dividends';
 import dayjs from 'dayjs';
 import YearPicker from 'components/ui/atoms/YearPicker/YearPicker';
+import dynamic from 'next/dynamic';
+const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function DividendsStatistics() {
   const [year, setYear] = useState(dayjs().format('YYYY'));
@@ -37,6 +38,7 @@ export default function DividendsStatistics() {
       </div>
       <ApexCharts
         type="bar"
+        width="100%"
         height={300}
         options={{
           chart: {
