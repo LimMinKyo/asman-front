@@ -4,8 +4,9 @@ import {
 } from 'api/common/pagination.dto';
 import { Dividend } from '../entities/dividend.entity';
 
-export interface GetDividendsRequest extends PaginationRequest {
+export interface GetDividendsMonthRequest extends PaginationRequest {
   date: string;
 }
 
-export interface GetDividendsResponse extends PaginationResponse<Dividend> {}
+export interface GetDividendsMonthResponse
+  extends PaginationResponse<Dividend> {}

@@ -19,6 +19,7 @@ import InfiniteScroll from 'components/common/InfiniteScroll';
 import TotalCount from 'components/ui/atoms/TotalCount/TotalCount';
 import TextAlert from 'components/ui/atoms/TextAlert/TextAlert';
 import DatePicker from 'components/ui/organisms/DatePicker';
+import Link from 'next/link';
 
 interface IForm {
   id?: number;
@@ -34,9 +35,9 @@ export default function DividendsPage() {
   const { year, month, yearMonth, onClickNext, onClickPrev } =
     useYearMonthPicker();
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery(
-    queryKeys.dividends({ date: yearMonth }),
+    queryKeys.dividends.month({ date: yearMonth }),
     ({ pageParam = 1 }) =>
-      dividendsAPI.getDividends({
+      dividendsAPI.getDividendsMonth({
         date: yearMonth,
         page: pageParam,
       }),
@@ -84,7 +85,9 @@ export default function DividendsPage() {
         unit,
       });
 
-      queryClient.invalidateQueries(queryKeys.dividends({ date: yearMonth }));
+      queryClient.invalidateQueries(
+        queryKeys.dividends.month({ date: yearMonth }),
+      );
 
       toast.success('추가 완료');
       clostModal();
@@ -119,7 +122,7 @@ export default function DividendsPage() {
           await dividendsAPI.deleteDividend(id);
 
           queryClient.invalidateQueries(
-            queryKeys.dividends({ date: yearMonth }),
+            queryKeys.dividends.month({ date: yearMonth }),
           );
 
           toast.success('삭제 성공');
@@ -154,7 +157,7 @@ export default function DividendsPage() {
           await dividendsAPI.updateDividend(id, data);
 
           queryClient.invalidateQueries(
-            queryKeys.dividends({ date: yearMonth }),
+            queryKeys.dividends.month({ date: yearMonth }),
           );
 
           toast.success('수정 성공');
@@ -186,10 +189,15 @@ export default function DividendsPage() {
               onClickPrev={onClickPrev}
               onClickNext={onClickNext}
             />
-            <Button onClick={() => setIsOpen(true)}>추가</Button>
+            <Link href="/dividends/statistics">
+              <Button>통계</Button>
+            </Link>
           </div>
 
-          <TotalCount totalCount={data?.pages[0].meta.totalCount} />
+          <div className="flex justify-between items-center">
+            <TotalCount totalCount={data?.pages[0].meta.totalCount} />
+            <Button onClick={() => setIsOpen(true)}>추가</Button>
+          </div>
 
           {isLoading ? (
             <div className="font-semibold text-center text-gray-500 text-lg mt-52">
@@ -343,7 +351,7 @@ export default function DividendsPage() {
           <Modal.Actions>
             <div className="w-full flex justify-between">
               {isOpenUpdateModal ? (
-                <Button onClick={deleteDividend}>
+                <Button type="button" onClick={deleteDividend}>
                   <FaRegTrashCan />
                 </Button>
               ) : (
