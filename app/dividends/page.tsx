@@ -4,8 +4,8 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { Unit } from 'api/common/unit.dto';
 import { dividendsAPI } from 'api/dividends';
 import dayjs from 'dayjs';
-import { useState } from 'react';
-import { Button, Input, Modal, Select } from 'react-daisyui';
+import { forwardRef, useState } from 'react';
+import { Button, Input, Modal, Select, InputProps } from 'react-daisyui';
 import { useForm, Controller } from 'react-hook-form';
 import useModal from 'hooks/useModal';
 import ModalLayout from 'components/ui/templates/ModalLayout';
@@ -20,6 +20,7 @@ import TotalCount from 'components/ui/atoms/TotalCount/TotalCount';
 import TextAlert from 'components/ui/atoms/TextAlert/TextAlert';
 import DatePicker from 'components/ui/organisms/DatePicker';
 import Link from 'next/link';
+import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
 interface IForm {
   id?: number;
@@ -29,6 +30,14 @@ interface IForm {
   tax: string;
   unit: Unit;
 }
+
+const NumberFormat = forwardRef(
+  (props: NumericFormatProps<InputProps>, ref) => {
+    return <NumericFormat {...props} getInputRef={ref} />;
+  },
+);
+
+NumberFormat.displayName = 'NumberFormat';
 
 export default function DividendsPage() {
   const queryClient = useQueryClient();
@@ -56,7 +65,12 @@ export default function DividendsPage() {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<IForm>();
+  } = useForm<IForm>({
+    defaultValues: {
+      dividend: '',
+      tax: '',
+    },
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const { openModal } = useModal();
@@ -79,9 +93,9 @@ export default function DividendsPage() {
     try {
       await dividendsAPI.createDividend({
         name,
-        dividend: Number(dividend),
+        dividend: Number(dividend.replaceAll(',', '')),
         dividendAt: dayjs(dividendAt).format('YYYY-MM-DD'),
-        ...(tax && { tax: Number(tax) }),
+        ...(tax && { tax: Number(tax.replaceAll(',', '')) }),
         unit,
       });
 
@@ -149,9 +163,9 @@ export default function DividendsPage() {
         try {
           const data = {
             name,
-            dividend: Number(dividend),
+            dividend: Number(dividend.replaceAll(',', '')),
             dividendAt: dayjs(dividendAt).format('YYYY-MM-DD'),
-            ...(tax && { tax: Number(tax) }),
+            ...(tax && { tax: Number(tax.replaceAll(',', '')) }),
             unit,
           };
           await dividendsAPI.updateDividend(id, data);
@@ -296,10 +310,13 @@ export default function DividendsPage() {
             <div className="py-4">
               <div className="flex gap-2 items-center">
                 <div className="w-16">통화</div>
-                <Select {...register('unit')} size="md" className="w-full">
-                  <Select.Option value={'KRW'} selected>
-                    KRW
-                  </Select.Option>
+                <Select
+                  {...register('unit')}
+                  defaultValue={'KRW'}
+                  size="md"
+                  className="w-full"
+                >
+                  <Select.Option value={'KRW'}>KRW</Select.Option>
                   <Select.Option value={'USD'}>USD</Select.Option>
                 </Select>
               </div>
@@ -308,13 +325,15 @@ export default function DividendsPage() {
               <div className="flex gap-2 items-center">
                 <div className="w-16">배당</div>
                 <div className="w-full">
-                  <Input
+                  <NumberFormat
                     {...register('dividend', {
                       required: '배당을 입력해주세요.',
                     })}
-                    type="number"
+                    thousandSeparator
+                    allowNegative={false}
                     size="md"
                     className="w-full"
+                    customInput={Input}
                   />
                   <TextAlert
                     message={errors.dividend?.message}
@@ -326,11 +345,13 @@ export default function DividendsPage() {
             <div className="py-4">
               <div className="flex gap-2 items-center">
                 <div className="w-16">세금</div>
-                <Input
+                <NumberFormat
                   {...register('tax')}
-                  type="number"
+                  thousandSeparator
+                  allowNegative={false}
                   size="md"
                   className="w-full"
+                  customInput={Input}
                 />
               </div>
             </div>
@@ -341,7 +362,8 @@ export default function DividendsPage() {
                   size="md"
                   className="w-full"
                   value={(
-                    +watch('dividend') - (+watch('tax') || 0)
+                    +watch('dividend').replaceAll(',', '') -
+                    (+watch('tax').replaceAll(',', '') || 0)
                   ).toLocaleString()}
                   disabled
                 />
