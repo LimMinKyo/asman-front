@@ -7,6 +7,8 @@ import { dividendsAPI } from 'api/dividends';
 import dayjs from 'dayjs';
 import YearPicker from 'components/ui/atoms/YearPicker/YearPicker';
 import dynamic from 'next/dynamic';
+import { Unit } from 'api/common/unit.dto';
+import { Dividend } from 'api/dividends/entities/dividend.entity';
 const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function DividendsStatistics() {
@@ -17,21 +19,41 @@ export default function DividendsStatistics() {
     }),
   );
 
-  const monthData =
+  const exchangeRate = data?.data?.exchangeRate || 0;
+  const monthKrwDividendArray =
     data?.data?.data.map(
-      (arr) =>
-        +arr
+      (dividendArray) =>
+        +dividendArray
           .reduce(
             (acc, { dividend, tax, unit }) =>
               acc +
-              (unit === 'KRW'
+              (unit === Unit.KRW
                 ? dividend - tax
-                : (dividend - tax) * (data.data?.exchangeRate || 0)),
+                : (dividend - tax) * exchangeRate),
             0,
           )
           .toFixed(),
     ) || [];
-  const yearData = monthData.reduce((acc, cur) => acc + cur, 0);
+  const yearDividendData = monthKrwDividendArray.reduce(
+    (acc, cur) => acc + cur,
+    0,
+  );
+
+  const getUsdFormat = ({ unit, dividend, tax }: Omit<Dividend, 'userId'>) => {
+    return `$${
+      unit === 'USD'
+        ? (dividend - tax).toFixed(2)
+        : ((dividend - tax) / exchangeRate).toFixed(2)
+    }`;
+  };
+
+  const getKrwFormat = ({ unit, dividend, tax }: Omit<Dividend, 'userId'>) => {
+    const krw =
+      unit === 'USD'
+        ? +((dividend - tax) * exchangeRate).toFixed()
+        : dividend - tax;
+    return `${krw.toLocaleString()}원`;
+  };
 
   const onClickPrev = () => {
     setYear(dayjs(year).subtract(1, 'year').format('YYYY'));
@@ -49,9 +71,9 @@ export default function DividendsStatistics() {
           onClickPrev={onClickPrev}
           onClickNext={onClickNext}
         />
-        {yearData ? (
+        {yearDividendData ? (
           <div className="font-bold text-2xl">
-            {yearData.toLocaleString()}원
+            {yearDividendData.toLocaleString()}원
           </div>
         ) : (
           <></>
@@ -151,50 +173,32 @@ export default function DividendsStatistics() {
         series={[
           {
             name: '월 배당금',
-            data: monthData,
+            data: monthKrwDividendArray,
           },
         ]}
       />
 
-      {data?.data?.data.map((arr, index) => (
+      {data?.data?.data.map((rows, index) => (
         <div key={index}>
-          {arr.length ? (
+          {rows.length ? (
             <div className="flex justify-between">
               <div className="font-bold text-xl">{index + 1}월</div>
-              <div>{monthData[index].toLocaleString()}원</div>
+              <div>{monthKrwDividendArray[index].toLocaleString()}원</div>
             </div>
           ) : (
             <></>
           )}
           <div>
-            {arr.map(({ id, name, unit, dividend, tax }) => (
-              <div key={id}>
+            {rows.map((row) => (
+              <div key={row.id}>
                 <div className="my-4 flex items-center gap-4">
                   <div className="bg-gray-500 w-8 h-8 rounded-full" />
                   <div>
                     <div className="font-semibold flex gap-1">
-                      <div>
-                        $
-                        {unit === 'USD'
-                          ? (dividend - tax).toFixed(2)
-                          : (
-                              (dividend - tax) /
-                              (data.data?.exchangeRate || 0)
-                            ).toFixed(2)}
-                      </div>
-                      <div>
-                        (
-                        {(unit === 'USD'
-                          ? +(
-                              (dividend - tax) *
-                              (data.data?.exchangeRate || 0)
-                            ).toFixed()
-                          : dividend - tax
-                        ).toLocaleString()}
-                        원)
-                      </div>
+                      <div>{getUsdFormat(row)}</div>
+                      <div>({getKrwFormat(row)})</div>
                     </div>
-                    <div className="text-sm">{name}</div>
+                    <div className="text-sm">{row.name}</div>
                   </div>
                 </div>
               </div>
