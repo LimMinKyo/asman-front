@@ -6,7 +6,7 @@ export interface Dividend {
   dividendAt: Date;
   id: number;
   name: string;
-  tax: number | null;
+  tax: number;
   unit: Unit;
   updatedAt: Date;
   userId: number;
