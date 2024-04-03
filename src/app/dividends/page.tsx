@@ -331,6 +331,7 @@ export default function DividendsPage() {
                     })}
                     thousandSeparator
                     allowNegative={false}
+                    decimalScale={watch('unit') === Unit.USD ? 4 : 0}
                     size="md"
                     className="w-full"
                     customInput={Input}
@@ -349,6 +350,7 @@ export default function DividendsPage() {
                   {...register('tax')}
                   thousandSeparator
                   allowNegative={false}
+                  decimalScale={watch('unit') === Unit.USD ? 4 : 0}
                   size="md"
                   className="w-full"
                   customInput={Input}
