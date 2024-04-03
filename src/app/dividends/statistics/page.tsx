@@ -9,6 +9,8 @@ import YearPicker from 'src/components/ui/atoms/YearPicker/YearPicker';
 import dynamic from 'next/dynamic';
 import { Unit } from 'src/api/common/unit.dto';
 import { Dividend } from 'src/api/dividends/entities/dividend.entity';
+import { FaBuilding } from 'react-icons/fa';
+
 const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function DividendsStatistics() {
@@ -192,7 +194,9 @@ export default function DividendsStatistics() {
             {rows.map((row) => (
               <div key={row.id}>
                 <div className="my-4 flex items-center gap-4">
-                  <div className="bg-gray-500 w-8 h-8 rounded-full" />
+                  <div className="bg-gray-300 w-10 h-10 rounded-full flex justify-center items-center">
+                    <FaBuilding className="w-6 h-6 fill-gray-400" />
+                  </div>
                   <div>
                     <div className="font-semibold flex gap-1">
                       <div>{getUsdFormat(row)}</div>
