@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react';
-import '../styles/globals.css';
+import '../src/styles/globals.css';
 
 import Image from 'next/image';
 
@@ -9,7 +9,6 @@ Image.defaultProps = {
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
       matchers: {
         color: /(background|color)$/i,

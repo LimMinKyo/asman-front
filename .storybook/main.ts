@@ -1,26 +1,14 @@
-import path from 'path';
-import type { StorybookConfig } from '@storybook/react-webpack5';
+import { StorybookConfig } from '@storybook/nextjs';
 
 const config: StorybookConfig = {
-  stories: ['../**/*.stories.mdx', '../**/*.stories.@(js|jsx|ts|ts)'],
+  stories: ['../**/*.mdx', '../**/*.stories.@(js|jsx|ts|ts)'],
   addons: [
-    path.dirname(
-      require.resolve(path.join('@storybook/addon-links', 'package.json')),
-    ),
-    path.dirname(
-      require.resolve(path.join('@storybook/addon-essentials', 'package.json')),
-    ),
-    path.dirname(
-      require.resolve(
-        path.join('@storybook/addon-interactions', 'package.json'),
-      ),
-    ),
-    path.dirname(
-      require.resolve(path.join('@storybook/addon-styling', 'package.json')),
-    ),
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-interactions',
+    '@storybook/addon-styling',
   ],
   framework: {
-    // @ts-ignore
     name: '@storybook/nextjs',
     options: {},
   },
