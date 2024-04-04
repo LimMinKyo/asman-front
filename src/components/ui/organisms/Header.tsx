@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Link, Menu, Modal, Navbar } from 'react-daisyui';
 import Logo from '../atoms/Logo/Logo';
+import { jwtUtils } from 'src/utils/jwt.utils';
 
 interface Props {
   hideMenu?: boolean;
@@ -28,7 +29,8 @@ export default function Header({ hideMenu }: Props) {
     const accessToken = localStorage.getItem('access-token');
 
     if (accessToken) {
-      setIsLoggedIn(true);
+      const isExpired = jwtUtils.getIsTokenExpired(accessToken);
+      isExpired ? logout() : setIsLoggedIn(true);
     }
 
     setIsLoading(false);
