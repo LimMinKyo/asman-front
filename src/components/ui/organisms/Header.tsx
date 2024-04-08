@@ -4,37 +4,39 @@ import { useEffect, useState } from 'react';
 import { Button, Link, Menu, Modal, Navbar } from 'react-daisyui';
 import Logo from '../atoms/Logo/Logo';
 import { jwtUtils } from 'src/utils/jwt.utils';
+import useMyProfile from 'src/hooks/queries/useMyProfile';
+import useModal from 'src/hooks/useModal';
 
 interface Props {
   hideMenu?: boolean;
 }
 
 export default function Header({ hideMenu }: Props) {
-  // const [isOpen, setIsOpen] = useState(false);
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data, isLoading } = useMyProfile();
+  const { openModal } = useModal();
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // const toggleIsOpen = () => {
   //   setIsOpen((prev) => !prev);
   // };
 
-  const logout = () => {
-    localStorage.removeItem('access-token');
-    setIsLoggedIn(false);
-    setIsOpenModal(false);
+  const openLogoutModal = () => {
+    openModal({
+      type: 'confirm',
+      message: '로그아웃하시겠습니까?',
+      onOk() {
+        jwtUtils.removeAccessToken();
+        setIsLoggedIn(false);
+      },
+    });
   };
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('access-token');
-
-    if (accessToken) {
-      const isExpired = jwtUtils.getIsTokenExpired(accessToken);
-      isExpired ? logout() : setIsLoggedIn(true);
+    if (data?.ok) {
+      setIsLoggedIn(true);
     }
-
-    setIsLoading(false);
-  }, []);
+  }, [data?.ok]);
 
   return (
     // <Drawer
@@ -75,7 +77,7 @@ export default function Header({ hideMenu }: Props) {
               </Link>
             </Menu.Item>
           ) : (
-            <Menu.Item onClick={() => setIsOpenModal(true)}>
+            <Menu.Item onClick={openLogoutModal}>
               <div className="p-0">
                 <Button>로그아웃</Button>
               </div>
@@ -90,16 +92,6 @@ export default function Header({ hideMenu }: Props) {
             <HamburgetMenu />
           </Button>
         </div> */}
-      <Modal open={isOpenModal}>
-        <Modal.Header className="font-bold">로그아웃</Modal.Header>
-        <Modal.Body className="flex justify-center">
-          로그아웃하시겠습니까?
-        </Modal.Body>
-        <Modal.Actions>
-          <Button onClick={() => setIsOpenModal(false)}>취소</Button>
-          <Button onClick={logout}>확인</Button>
-        </Modal.Actions>
-      </Modal>
     </Navbar>
     // </Drawer>
   );

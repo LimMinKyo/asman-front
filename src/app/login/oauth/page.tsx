@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { jwtUtils } from 'src/utils/jwt.utils';
 
 export default function LoginKakao() {
   const router = useRouter();
@@ -10,7 +11,7 @@ export default function LoginKakao() {
   useEffect(() => {
     const accessToken = params.get('access-token');
     if (accessToken) {
-      localStorage.setItem('access-token', accessToken);
+      jwtUtils.setAccessToken(accessToken);
       router.push('/main');
     }
   }, [params, router]);

@@ -2,6 +2,19 @@ import { JwtPayload } from 'jwt-decode';
 import { jwtUtils } from './jwt.utils';
 
 describe('jwtUtils', () => {
+  it('should set and get access token correctly', () => {
+    const token = 'exampleAccessToken';
+    jwtUtils.setAccessToken(token);
+    expect(jwtUtils.getAccessToken()).toBe(token);
+  });
+
+  it('should remove access token correctly', () => {
+    const token = 'exampleAccessToken';
+    jwtUtils.setAccessToken(token);
+    jwtUtils.removeAccessToken();
+    expect(jwtUtils.getAccessToken()).toBeNull();
+  });
+
   describe('getIsTokenExpired', () => {
     it('should return true if token is expired', () => {
       // 만료 시간이 현재 시간보다 이전인 토큰 생성

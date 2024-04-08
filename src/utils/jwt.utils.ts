@@ -1,6 +1,20 @@
 import { jwtDecode } from 'jwt-decode';
 
 class JwtUtils {
+  private accessToken: string | null = null;
+
+  getAccessToken() {
+    return this.accessToken;
+  }
+
+  removeAccessToken() {
+    this.accessToken = null;
+  }
+
+  setAccessToken(accessToken: string) {
+    this.accessToken = accessToken;
+  }
+
   getIsTokenExpired(token: string) {
     const tokenExp = this.getTokenExpiration(token);
 
