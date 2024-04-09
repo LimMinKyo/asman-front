@@ -6,6 +6,7 @@ import Logo from '../atoms/Logo/Logo';
 import { jwtUtils } from 'src/utils/jwt.utils';
 import useMyProfile from 'src/hooks/queries/useMyProfile';
 import useModal from 'src/hooks/useModal';
+import { authAPI } from 'src/api/auth';
 
 interface Props {
   hideMenu?: boolean;
@@ -25,8 +26,9 @@ export default function Header({ hideMenu }: Props) {
     openModal({
       type: 'confirm',
       message: '로그아웃하시겠습니까?',
-      onOk() {
+      async onOk() {
         jwtUtils.removeAccessToken();
+        await authAPI.logout();
         setIsLoggedIn(false);
       },
     });

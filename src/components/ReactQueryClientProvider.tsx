@@ -35,6 +35,7 @@ function ReactQueryClientProvider({ children }: Props) {
                 client.invalidateQueries({ queryKey: query.queryKey });
               } else {
                 jwtUtils.removeAccessToken();
+                await authAPI.logout();
                 location.href = '/login';
               }
             }
