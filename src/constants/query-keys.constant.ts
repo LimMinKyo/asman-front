@@ -11,6 +11,7 @@ export const queryKeys = {
     profile: [MY, PROFILE],
   },
   dividends: {
+    all: [DIVIDENDS],
     month: (query: Omit<GetDividendsMonthRequest, 'page'>) => [
       DIVIDENDS,
       query,
