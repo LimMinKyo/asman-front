@@ -15,7 +15,7 @@ const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function DividendsStatistics() {
   const [year, setYear] = useState(dayjs().format('YYYY'));
-  const { data } = useQuery(queryKeys.dividends.yaer({ date: year }), () =>
+  const { data } = useQuery(queryKeys.dividends.year({ date: year }), () =>
     dividendsAPI.getDividendsYear({
       date: year,
     }),

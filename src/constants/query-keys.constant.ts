@@ -16,6 +16,6 @@ export const queryKeys = {
       DIVIDENDS,
       query,
     ],
-    yaer: (query: GetDividendsYearRequest) => [DIVIDENDS, query],
+    year: (query: GetDividendsYearRequest) => [DIVIDENDS, query],
   },
 };
