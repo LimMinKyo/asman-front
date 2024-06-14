@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Button, Link, Menu, Modal, Navbar } from 'react-daisyui';
+import { Button, Link, Menu, Navbar } from 'react-daisyui';
 import Logo from '../atoms/Logo/Logo';
 import { jwtUtils } from 'src/utils/jwt.utils';
 import useMyProfile from 'src/hooks/queries/useMyProfile';
@@ -16,8 +15,6 @@ export default function Header({ hideMenu }: Props) {
   const { data, isLoading } = useMyProfile();
   const { openModal } = useModal();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   // const toggleIsOpen = () => {
   //   setIsOpen((prev) => !prev);
   // };
@@ -29,16 +26,9 @@ export default function Header({ hideMenu }: Props) {
       async onOk() {
         jwtUtils.removeAccessToken();
         await authAPI.logout();
-        setIsLoggedIn(false);
       },
     });
   };
-
-  useEffect(() => {
-    if (data?.ok) {
-      setIsLoggedIn(true);
-    }
-  }, [data?.ok]);
 
   return (
     // <Drawer
@@ -72,7 +62,7 @@ export default function Header({ hideMenu }: Props) {
       {/* <Menu horizontal className="flex-none hidden lg:block"> */}
       <Menu horizontal className="p-0">
         {!hideMenu && !isLoading ? (
-          !isLoggedIn ? (
+          !data?.ok ? (
             <Menu.Item>
               <Link href="/login" className="p-0">
                 <Button>로그인</Button>
